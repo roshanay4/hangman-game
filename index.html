@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hangman Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Hangman Game</h1>
+
+        <div id="mode-selection">
+            <button id="vs-computer-btn">Play vs Computer</button>
+            <button id="vs-friend-btn">Play vs Friend</button>
+        </div>
+
+        <div id="word-setup" style="display: none;">
+            <p>Player 1: Enter a secret word</p>
+            <input type="text" id="word-input" placeholder="Type word here">
+            <button id="submit-word-btn">Start Game</button>
+        </div>
+
+        <div id="ready-screen" style="display: none;">
+            <p>Word is set! Player 2, click below when ready to guess.</p>
+            <button id="ready-btn">I'm Ready to Guess</button>
+        </div>
+
+        <div id="game-area" style="display: none;">
+            <p id="word-display"></p>
+            <p id="wrong-count"></p>
+            <p id="guessed-letters"></p>
+
+            <div id="letter-buttons"></div>
+
+            <p id="message"></p>
+            <button id="restart-btn" style="display: none;">Play Again</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
