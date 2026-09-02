@@ -1,7 +1,12 @@
 const words = ["PROGRAMMING", "COMPUTER", "KEYBOARD", "FUNCTION", "VARIABLE"];
 let secretWord = "";
+let currentMode = "";
 let guessedLetters = [];
 let wrongGuesses = 0;
+
+const SUPABASE_URL = "https://iipfldbpoaijhhwecqja.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGZsZGJwb2Fpamhod2VjcWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMjQ2MTMsImV4cCI6MjEwMzkwMDYxM30.yKrbRnDDU2_4cOPkmB_qOGi6cqEAqTmacPx1uBXIkYU";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const maxWrongGuesses = 8;
 
 const modeSelection = document.getElementById("mode-selection");
@@ -36,11 +41,13 @@ function checkForSharedWord() {
         secretWord = atob(encodedWord); // decode the word
         modeSelection.style.display = "none";
         readyScreen.style.display = "block";
+            currentMode = "friend";
     }
 }
 
 function startComputerGame() {
     secretWord = words[Math.floor(Math.random() * words.length)];
+        currentMode = "computer";
     modeSelection.style.display = "none";
     beginGame();
 }
@@ -63,6 +70,7 @@ function submitWord() {
     generatedLink.value = link;
     wordSetup.style.display = "none";
     linkDisplay.style.display = "block";
+        currentMode = "friend";
 }
 
 function copyLink() {
@@ -125,11 +133,19 @@ function checkGameEnd() {
 
     if (won) {
         message.textContent = "Congratulations! You won! 🎉";
+        saveResult("won");
         endGame();
     } else if (wrongGuesses >= maxWrongGuesses) {
         message.textContent = `Game Over! The word was: ${secretWord}`;
+        saveResult("lost");
         endGame();
     }
+}
+
+async function saveResult(result) {
+    await supabaseClient
+        .from("game_results")
+        .insert([{ mode: currentMode, result: result, word: secretWord }]);
 }
 
 function endGame() {
