@@ -17,11 +17,17 @@
         <div id="word-setup" style="display: none;">
             <p>Player 1: Enter a secret word</p>
             <input type="text" id="word-input" placeholder="Type word here">
-            <button id="submit-word-btn">Start Game</button>
+            <button id="submit-word-btn">Generate Link</button>
+        </div>
+
+        <div id="link-display" style="display: none;">
+            <p>Send this link to your friend:</p>
+            <input type="text" id="generated-link" readonly>
+            <button id="copy-link-btn">Copy Link</button>
         </div>
 
         <div id="ready-screen" style="display: none;">
-            <p>Word is set! Player 2, click below when ready to guess.</p>
+            <p>Ready to guess the word your friend sent you?</p>
             <button id="ready-btn">I'm Ready to Guess</button>
         </div>
 

@@ -6,9 +6,11 @@ const maxWrongGuesses = 8;
 
 const modeSelection = document.getElementById("mode-selection");
 const wordSetup = document.getElementById("word-setup");
+const linkDisplay = document.getElementById("link-display");
 const readyScreen = document.getElementById("ready-screen");
 const gameArea = document.getElementById("game-area");
 const wordInput = document.getElementById("word-input");
+const generatedLink = document.getElementById("generated-link");
 const wordDisplay = document.getElementById("word-display");
 const wrongCount = document.getElementById("wrong-count");
 const guessedLettersDisplay = document.getElementById("guessed-letters");
@@ -19,8 +21,23 @@ const restartBtn = document.getElementById("restart-btn");
 document.getElementById("vs-computer-btn").addEventListener("click", startComputerGame);
 document.getElementById("vs-friend-btn").addEventListener("click", showWordSetup);
 document.getElementById("submit-word-btn").addEventListener("click", submitWord);
+document.getElementById("copy-link-btn").addEventListener("click", copyLink);
 document.getElementById("ready-btn").addEventListener("click", startGuessing);
-restartBtn.addEventListener("click", resetToMenu);
+restartBtn.addEventListener("click", () => window.location.href = window.location.pathname);
+
+// Check if this page was opened via a shared link
+window.addEventListener("load", checkForSharedWord);
+
+function checkForSharedWord() {
+    const params = new URLSearchParams(window.location.search);
+    const encodedWord = params.get("word");
+
+    if (encodedWord) {
+        secretWord = atob(encodedWord); // decode the word
+        modeSelection.style.display = "none";
+        readyScreen.style.display = "block";
+    }
+}
 
 function startComputerGame() {
     secretWord = words[Math.floor(Math.random() * words.length)];
@@ -39,10 +56,19 @@ function submitWord() {
         alert("Please enter a word!");
         return;
     }
-    secretWord = word;
-    wordInput.value = "";
+
+    const encodedWord = btoa(word); // encode the word so it's not plainly visible
+    const link = `${window.location.origin}${window.location.pathname}?word=${encodedWord}`;
+
+    generatedLink.value = link;
     wordSetup.style.display = "none";
-    readyScreen.style.display = "block";
+    linkDisplay.style.display = "block";
+}
+
+function copyLink() {
+    generatedLink.select();
+    document.execCommand("copy");
+    alert("Link copied! Send it to your friend.");
 }
 
 function startGuessing() {
@@ -110,9 +136,4 @@ function endGame() {
     const buttons = letterButtons.querySelectorAll("button");
     buttons.forEach(btn => btn.disabled = true);
     restartBtn.style.display = "inline-block";
-}
-
-function resetToMenu() {
-    gameArea.style.display = "none";
-    modeSelection.style.display = "block";
 }
