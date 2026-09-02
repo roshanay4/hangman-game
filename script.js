@@ -3,16 +3,25 @@ let secretWord = "";
 let currentMode = "";
 let guessedLetters = [];
 let wrongGuesses = 0;
+const maxWrongGuesses = 8;
 
 const SUPABASE_URL = "https://iipfldbpoaijhhwecqja.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGZsZGJwb2Fpamhod2VjcWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMjQ2MTMsImV4cCI6MjEwMzkwMDYxM30.yKrbRnDDU2_4cOPkmB_qOGi6cqEAqTmacPx1uBXIkYU";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const maxWrongGuesses = 8;
+
+let player1Score = 0;
+let player2Score = 0;
+let isDirectFriendMode = false;
 
 const modeSelection = document.getElementById("mode-selection");
+const directWordSetup = document.getElementById("direct-word-setup");
+const directWordInput = document.getElementById("direct-word-input");
 const wordSetup = document.getElementById("word-setup");
 const linkDisplay = document.getElementById("link-display");
 const readyScreen = document.getElementById("ready-screen");
+const scoreBoard = document.getElementById("score-board");
+const player1ScoreDisplay = document.getElementById("player1-score");
+const player2ScoreDisplay = document.getElementById("player2-score");
 const gameArea = document.getElementById("game-area");
 const wordInput = document.getElementById("word-input");
 const generatedLink = document.getElementById("generated-link");
@@ -24,13 +33,14 @@ const message = document.getElementById("message");
 const restartBtn = document.getElementById("restart-btn");
 
 document.getElementById("vs-computer-btn").addEventListener("click", startComputerGame);
+document.getElementById("vs-friend-direct-btn").addEventListener("click", showDirectWordSetup);
+document.getElementById("direct-submit-btn").addEventListener("click", submitDirectWord);
 document.getElementById("vs-friend-btn").addEventListener("click", showWordSetup);
 document.getElementById("submit-word-btn").addEventListener("click", submitWord);
 document.getElementById("copy-link-btn").addEventListener("click", copyLink);
 document.getElementById("ready-btn").addEventListener("click", startGuessing);
-restartBtn.addEventListener("click", () => window.location.href = window.location.pathname);
+restartBtn.addEventListener("click", playAgain);
 
-// Check if this page was opened via a shared link
 window.addEventListener("load", checkForSharedWord);
 
 function checkForSharedWord() {
@@ -38,17 +48,38 @@ function checkForSharedWord() {
     const encodedWord = params.get("word");
 
     if (encodedWord) {
-        secretWord = atob(encodedWord); // decode the word
+        secretWord = atob(encodedWord);
+        currentMode = "friend";
         modeSelection.style.display = "none";
         readyScreen.style.display = "block";
-            currentMode = "friend";
     }
 }
 
 function startComputerGame() {
     secretWord = words[Math.floor(Math.random() * words.length)];
-        currentMode = "computer";
+    currentMode = "computer";
+    isDirectFriendMode = false;
     modeSelection.style.display = "none";
+    beginGame();
+}
+
+function showDirectWordSetup() {
+    modeSelection.style.display = "none";
+    directWordSetup.style.display = "block";
+}
+
+function submitDirectWord() {
+    const word = directWordInput.value.trim().toUpperCase();
+    if (word.length === 0) {
+        alert("Please enter a word!");
+        return;
+    }
+    secretWord = word;
+    currentMode = "friend";
+    isDirectFriendMode = true;
+    directWordInput.value = "";
+    directWordSetup.style.display = "none";
+    scoreBoard.style.display = "block";
     beginGame();
 }
 
@@ -64,13 +95,14 @@ function submitWord() {
         return;
     }
 
-    const encodedWord = btoa(word); // encode the word so it's not plainly visible
+    const encodedWord = btoa(word);
     const link = `${window.location.origin}${window.location.pathname}?word=${encodedWord}`;
 
     generatedLink.value = link;
     wordSetup.style.display = "none";
     linkDisplay.style.display = "block";
-        currentMode = "friend";
+    currentMode = "friend";
+    isDirectFriendMode = false;
 }
 
 function copyLink() {
@@ -81,6 +113,7 @@ function copyLink() {
 
 function startGuessing() {
     readyScreen.style.display = "none";
+    isDirectFriendMode = false;
     beginGame();
 }
 
@@ -134,12 +167,25 @@ function checkGameEnd() {
     if (won) {
         message.textContent = "Congratulations! You won! 🎉";
         saveResult("won");
+        if (isDirectFriendMode) {
+            player2Score++;
+            updateScoreDisplay();
+        }
         endGame();
     } else if (wrongGuesses >= maxWrongGuesses) {
         message.textContent = `Game Over! The word was: ${secretWord}`;
         saveResult("lost");
+        if (isDirectFriendMode) {
+            player1Score++;
+            updateScoreDisplay();
+        }
         endGame();
     }
+}
+
+function updateScoreDisplay() {
+    player1ScoreDisplay.textContent = player1Score;
+    player2ScoreDisplay.textContent = player2Score;
 }
 
 async function saveResult(result) {
@@ -152,4 +198,13 @@ function endGame() {
     const buttons = letterButtons.querySelectorAll("button");
     buttons.forEach(btn => btn.disabled = true);
     restartBtn.style.display = "inline-block";
+}
+
+function playAgain() {
+    if (isDirectFriendMode) {
+        gameArea.style.display = "none";
+        directWordSetup.style.display = "block";
+    } else {
+        window.location.href = window.location.pathname;
+    }
 }

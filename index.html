@@ -11,7 +11,14 @@
 
         <div id="mode-selection">
             <button id="vs-computer-btn">Play vs Computer</button>
-            <button id="vs-friend-btn">Play vs Friend</button>
+            <button id="vs-friend-direct-btn">Play with Friend</button>
+            <button id="vs-friend-btn">Play with Friend Online</button>
+        </div>
+
+        <div id="direct-word-setup" style="display: none;">
+            <p>Player 1: Enter a secret word (Player 2 should look away!)</p>
+            <input type="text" id="direct-word-input" placeholder="Type word here">
+            <button id="direct-submit-btn">Start Guessing</button>
         </div>
 
         <div id="word-setup" style="display: none;">
@@ -31,6 +38,10 @@
             <button id="ready-btn">I'm Ready to Guess</button>
         </div>
 
+        <div id="score-board" style="display: none;">
+            <p><strong>Score</strong> — Player 1 (Setter): <span id="player1-score">0</span> | Player 2 (Guesser): <span id="player2-score">0</span></p>
+        </div>
+
         <div id="game-area" style="display: none;">
             <p id="word-display"></p>
             <p id="wrong-count"></p>
@@ -44,7 +55,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script src="script.js"></script>
 </body>
 </html>
